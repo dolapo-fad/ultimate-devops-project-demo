@@ -43,7 +43,8 @@ jobs:
       uses: golangci/golangci-lint-action@v3
       with:
             version: latest
-            args: src/product-catalog/...
+            working-directory: src/product-catalog
+            args: ./...
       
   docker:
     runs-on: ubuntu-latest
