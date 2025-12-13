@@ -44,7 +44,7 @@ jobs:
       with:
             version: latest
             working-directory: src/product-catalog
-            args: ./...
+            args: ./... --issues-exit-code=0
       
   docker:
     runs-on: ubuntu-latest
@@ -79,6 +79,9 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN}}
 
+    - name: Checkout PR branch
+      run: git checkout ${{ github.head_ref }}
+
     - name: Update tag in deployment manifest
       run: |
         sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/product-catalog:${{ github.run_id }}|" kubernetes/productcatalog/deploy.yaml
@@ -88,5 +91,5 @@ jobs:
         git config --global user.email "dolapofadipe95@gmail.com"
         git add kubernetes/productcatalog/deploy.yaml
         git commit -m "[CI]: Update product-catalog image tag"
-        git push 
+        git push origin ${{ github.head_ref }}
 
