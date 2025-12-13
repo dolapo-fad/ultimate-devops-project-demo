@@ -34,17 +34,22 @@ jobs:
     
   code-quality:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
+    - name: checkout code
       uses: actions/checkout@v4
-
-    - name: Run GolangCI-Lint
-      uses: golangci/golangci-lint-action@v3
+            
+    - name: Setup Go 1.22
+      uses: actions/setup-go@v2
       with:
-            version: latest
-            working-directory: src/product-catalog
-            args: ./...
+        go-version: 1.22
+            
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+       version: v1.55.2
+       run: golangci-lint run
+       working-directory: src/product-catalog
       
   docker:
     runs-on: ubuntu-latest
@@ -79,6 +84,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN}}
 
+   
     - name: Update tag in deployment manifest
       run: |
         sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/product-catalog:${{ github.run_id }}|" kubernetes/productcatalog/deploy.yaml
@@ -88,5 +94,5 @@ jobs:
         git config --global user.email "dolapofadipe95@gmail.com"
         git add kubernetes/productcatalog/deploy.yaml
         git commit -m "[CI]: Update product-catalog image tag"
-        git push 
+        git push origin HEAD:main -f
 
